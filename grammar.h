@@ -42,7 +42,6 @@ class Grammar {
 		// T4
 		void find_follows();
 		bool find_follow(rule r); 
-		void follow_firstpass();
 		void print_follows();
 		// T5
 		string pparser_rules();

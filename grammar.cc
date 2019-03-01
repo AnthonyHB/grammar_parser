@@ -98,10 +98,19 @@ void Grammar::set_reachable() {
 
 bool Grammar::find_reachable(rule r) {
 	bool changed = false;
+	bool is_generating=true;
 	for (int i = 0; i < r.rhs.size(); i++) {
-		if(!symbols[r.rhs[i]].is_reachable) {changed = true;}
-		symbols[r.rhs[i]].is_reachable = true;
+		if(!symbols[r.rhs[i]].is_generating) {is_generating = false;}
 	}
+	if(is_generating){
+		for (int i = 0; i < r.rhs.size(); i++) {
+			if(!symbols[r.rhs[i]].is_reachable) {
+				symbols[r.rhs[i]].is_reachable = true;
+				changed =true;
+			}
+		}
+	}
+
 	return changed;
 }
 
@@ -199,7 +208,7 @@ bool Grammar::find_first(rule r, int r_idx) {
 }
 
 void Grammar::print_firsts() {
-	sort(&firsts);
+	sort(&firsts); // to print in order of grammar
 	for (int i=0; i<firsts.size(); i++) {
 		if (!symbols[firsts[i].lhs].is_terminal) {
 			cout << "FIRST(" << symbols[firsts[i].lhs].name << ") = { ";
@@ -222,13 +231,14 @@ void Grammar::task4() {
 }
 
 void Grammar::find_follows() {
+	// setup follows vector
 	for (int i=0; i<symbols.size(); i++) {
 		rule r; r.lhs = i;
 		follows.push_back(r);
 	}
 	follows[rules[0].lhs].rhs.push_back(-1);
 
-	// first pass - used to setup follows
+	// first pass - find union
 	for (int i=0; i<rules.size(); i++) {
 		for (int j=0; j<rules[i].rhs.size()-1; j++) {
 			bool empty = true;
@@ -251,15 +261,15 @@ void Grammar::find_follows() {
 
 bool Grammar::find_follow(rule r) {
 	bool changed = false, empty = true;
-		for (int i=r.rhs.size()-1; i>=0 && empty; i--) {
-			if(find_union(&follows[r.rhs[i]].rhs, &follows[r.lhs].rhs)) {changed=true;}
-			empty = find(firsts[r.rhs[i]].rhs.begin(), firsts[r.rhs[i]].rhs.end(), 0) != firsts[r.rhs[i]].rhs.end();
-		}
+	for (int i=r.rhs.size()-1; i>=0 && empty; i--) {
+		if(find_union(&follows[r.rhs[i]].rhs, &follows[r.lhs].rhs)) {changed=true;}
+		empty = find(firsts[r.rhs[i]].rhs.begin(), firsts[r.rhs[i]].rhs.end(), 0) != firsts[r.rhs[i]].rhs.end();
+	}
 	return changed;
 }
 
 void Grammar::print_follows() {
-	sort(&follows);
+	sort(&follows); // to print in order of grammar
 	for (int i=0; i<follows.size(); i++) {
 		if (!symbols[follows[i].lhs].is_terminal) {
 			cout << "FOLLOW(" << symbols[follows[i].lhs].name << ") = { ";
