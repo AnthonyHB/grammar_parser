@@ -15,14 +15,14 @@ typedef struct {
 typedef struct {
 	string name;
 	bool is_terminal;
-	bool is_reachable, is_generating, is_empty;
+	bool is_reachable, is_generating;
 } symbol;
 
 class Grammar {
 	private:
 		map<string, int> symbol_map;
 		vector<symbol> symbols;
-		vector<rule> rules, firsts, follows;
+		vector<rule> rules, firsts, rule_firsts, follows;
 
 		// T1
 		void print_nts(); void print_ts();
@@ -36,7 +36,7 @@ class Grammar {
 		// T3
 		bool find_union(vector<int> *vec, vector<int> *add);
 		void sort(vector<rule> *sets);
-		bool find_first(rule r);
+		bool find_first(rule r, int pizza);
 		void find_firsts(); 
 		void print_firsts();
 		// T4
@@ -45,6 +45,7 @@ class Grammar {
 		void follow_firstpass();
 		void print_follows();
 		// T5
+		string pparser_rules();
 
 	public:
 		int add_symbol(string name);
