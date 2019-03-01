@@ -7,7 +7,7 @@ void Grammar::init() {
 		symbols[rules[i].lhs].is_generating = false;
 		symbols[rules[i].lhs].is_reachable = false;
 	}
-	symbols[rules[0].lhs].is_reachable=true;
+	symbols[rules[0].lhs].is_reachable = true;
 }
 
 int Grammar::add_symbol(string name) {
@@ -52,7 +52,8 @@ void Grammar::print_nts() {
 Task 2 
 ###### */
 void Grammar::task2() {
-	set_generating(); set_reachable(); print_useful();
+	set_generating(); set_reachable(); 
+	print_useful();
 }
 
 void Grammar::set_generating() {
@@ -127,7 +128,8 @@ void Grammar::print_useful() {
 Task 3 
 ###### */
 void Grammar::task3() {
-	find_firsts(); print_firsts();
+	find_firsts(); 
+	print_firsts();
 }
 
 void Grammar::sort(vector<rule> *sets) {
@@ -153,29 +155,15 @@ bool Grammar::find_union(vector<int> *vec, vector<int> *add) {
 	return changed;
 }
 
-void Grammar::print_firsts() {
-	sort(&firsts);
-	for (int i=0; i<firsts.size(); i++) {
-		if (!symbols[firsts[i].lhs].is_terminal) {
-			cout << "FIRST(" << symbols[firsts[i].lhs].name << ") = { ";
-			for (int j=0; j<firsts[i].rhs.size(); j++) {
-				if(j>=1){cout<<", ";}
-				cout << symbols[firsts[i].rhs[j]].name;
-	
-			}
-			cout << " }\n";
-		}
-	}
-}
-
 void Grammar::find_firsts() {
+	// setup firsts vector
 	for (int i=0; i<symbols.size(); i++) {
-		rule r; 
-		r.lhs = i;
+		rule r; r.lhs = i;
 		if (symbols[i].is_terminal) {r.rhs.push_back(i);}
 		firsts.push_back(r);
 	}
 
+	// used for task 5
 	for (int i=0; i<rules.size(); i++) {
 		rule r;
 		r.lhs = i;
@@ -191,12 +179,11 @@ void Grammar::find_firsts() {
 	}
 }
 
-bool Grammar::find_first(rule r, int pizza) {
+bool Grammar::find_first(rule r, int r_idx) {
 	bool changed = false, flag = true;
 	for (int i=0; i<r.rhs.size() && flag; i++) {
 		if(find_union(&firsts[r.lhs].rhs, &firsts[r.rhs[i]].rhs)) {changed = true;}
-		find_union(&rule_firsts[pizza].rhs, &firsts[r.rhs[i]].rhs);
-		// if vec contains 0
+		find_union(&rule_firsts[r_idx].rhs, &firsts[r.rhs[i]].rhs);
 		flag = find(firsts[r.rhs[i]].rhs.begin(), firsts[r.rhs[i]].rhs.end(), 0) != firsts[r.rhs[i]].rhs.end();
 	}
 	if (flag) {
@@ -204,40 +191,44 @@ bool Grammar::find_first(rule r, int pizza) {
 			firsts[r.lhs].rhs.push_back(0);
 			changed = true;
 		} 
-		if (!(find(rule_firsts[pizza].rhs.begin(), rule_firsts[pizza].rhs.end(), 0) != rule_firsts[pizza].rhs.end())) {
-			rule_firsts[pizza].rhs.push_back(0);
+		if (!(find(rule_firsts[r_idx].rhs.begin(), rule_firsts[r_idx].rhs.end(), 0) != rule_firsts[r_idx].rhs.end())) {
+			rule_firsts[r_idx].rhs.push_back(0);
 		}
 	}
 	return changed;
+}
+
+void Grammar::print_firsts() {
+	sort(&firsts);
+	for (int i=0; i<firsts.size(); i++) {
+		if (!symbols[firsts[i].lhs].is_terminal) {
+			cout << "FIRST(" << symbols[firsts[i].lhs].name << ") = { ";
+			for (int j=0; j<firsts[i].rhs.size(); j++) {
+				if(j>=1){cout<<", ";}
+				cout << symbols[firsts[i].rhs[j]].name;
+	
+			}
+			cout << " }\n";
+		}
+	}
 }
 
 /* ###### 
 Task 4 
 ###### */
 void Grammar::task4() {
-	find_firsts(); 
-	follows_init(); print_follows();
+	find_firsts(); find_follows(); 
+	print_follows();
 }
 
-void Grammar::follows_init() {
+void Grammar::find_follows() {
 	for (int i=0; i<symbols.size(); i++) {
 		rule r; r.lhs = i;
 		follows.push_back(r);
 	}
 	follows[rules[0].lhs].rhs.push_back(-1);
 
-	follow_firstpass();
-
-	bool changed = true;
-	while (changed) {
-		changed = false;
-		for (int i=0; i<rules.size(); i++) {
-			if(find_follows(rules[i])){changed=true;}
-		}
-	}
-}
-
-void Grammar::follow_firstpass() {
+	// first pass - used to setup follows
 	for (int i=0; i<rules.size(); i++) {
 		for (int j=0; j<rules[i].rhs.size()-1; j++) {
 			bool empty = true;
@@ -247,9 +238,18 @@ void Grammar::follow_firstpass() {
 			}
 		}
 	}
+
+	// Here's where the real stuff happens
+	bool changed = true;
+	while (changed) {
+		changed = false;
+		for (int i=0; i<rules.size(); i++) {
+			if(find_follow(rules[i])) {changed=true;}
+		}
+	}
 }
 
-bool Grammar::find_follows(rule r) {
+bool Grammar::find_follow(rule r) {
 	bool changed = false, empty = true;
 		for (int i=r.rhs.size()-1; i>=0 && empty; i--) {
 			if(find_union(&follows[r.rhs[i]].rhs, &follows[r.lhs].rhs)) {changed=true;}
@@ -279,7 +279,7 @@ void Grammar::print_follows() {
 /* ###### Task 5 ###### */
 void Grammar::task5() {
 	set_generating(); set_reachable();
-	find_firsts(); follows_init();
+	find_firsts(); find_follows();
 	cout << pparser_rules();
 
 }
@@ -287,13 +287,14 @@ void Grammar::task5() {
 string Grammar::pparser_rules() {
 	// useless symbols - all symbols, any not gen/not reach just output no
 	for (int i=0; i<symbols.size(); i++) {
-		if (!symbols[i].is_generating && !symbols[i].is_reachable) {
+		if (!symbols[i].is_generating || !symbols[i].is_reachable) {
 			return "NO";
 			break;
 		}
 	}
-	return "YES";
+
 	// rule 1: 
 	// rule 2: 
+	return "YES";
 }
 

@@ -36,12 +36,12 @@ class Grammar {
 		// T3
 		bool find_union(vector<int> *vec, vector<int> *add);
 		void sort(vector<rule> *sets);
-		bool find_first(rule r, int pizza);
+		bool find_first(rule r, int r_idx);
 		void find_firsts(); 
 		void print_firsts();
 		// T4
-		void follows_init();
-		bool find_follows(rule r); 
+		void find_follows();
+		bool find_follow(rule r); 
 		void follow_firstpass();
 		void print_follows();
 		// T5
