@@ -44,7 +44,7 @@ class Grammar {
 		bool find_follow(rule r); 
 		void print_follows();
 		// T5
-		string pparser_rules();
+		void print_is_pparser();
 
 	public:
 		int add_symbol(string name);

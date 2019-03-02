@@ -290,21 +290,25 @@ void Grammar::print_follows() {
 void Grammar::task5() {
 	set_generating(); set_reachable();
 	find_firsts(); find_follows();
-	cout << pparser_rules();
+	print_is_pparser();
 
 }
 
-string Grammar::pparser_rules() {
+void Grammar::print_is_pparser() {
+	bool is_pparser = true;
 	// useless symbols - all symbols, any not gen/not reach just output no
 	for (int i=0; i<symbols.size(); i++) {
 		if (!symbols[i].is_generating || !symbols[i].is_reachable) {
-			return "NO";
+			is_pparser = false;
 			break;
 		}
 	}
 
-	// rule 1: 
-	// rule 2: 
-	return "YES";
+	if (is_pparser) {
+		// now check conditions 1 and 2
+	}
+
+	if (is_pparser) {cout << "YES";} else {cout << "NO";}
+
 }
 
